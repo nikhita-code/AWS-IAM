@@ -1,0 +1,22 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "Statement1",
+            "Effect": "Allow",
+            "Action": [
+                "rds-db:connect",
+                "rds:DescribeDBClusters",
+                "rds:DescribeDBInstances",
+                "rds:DescribeDBLogFiles",
+                "rds:DescribeGlobalClusters",
+                "rds:DeleteDBCluster",
+                "rds:DeleteDBInstance"
+            ],
+            "Resource": [
+                "arn:aws:rds:eu-west-1:652286699990:cluster:database-1",
+                "arn:aws:rds:eu-west-1:652286699990:db:database-1-instance-1"
+            ]
+        }
+    ]
+}
