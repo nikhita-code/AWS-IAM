@@ -1,0 +1,22 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "Statement1",
+            "Effect": "Allow",
+            "Action": [
+                "dynamodb:Query",
+                "dynamodb:Scan",
+                "dynamodb:CreateTable",
+                "dynamodb:DeleteTable",
+                "dynamodb:DeleteItem",
+                "dynamodb:GetItem",
+                "dynamodb:BatchGetItem"
+            ],
+            "Resource": [
+                "arn:aws:dynamodb:eu-west-1:652286699990:table/dummydynamodb",
+                "arn:aws:dynamodb:eu-west-1:652286699990:table/dummydynamodb/*"
+            ]
+        }
+    ]
+}
