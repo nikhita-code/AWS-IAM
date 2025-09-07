@@ -1,0 +1,24 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "Statement1",
+            "Effect": "Allow",
+            "Action": [
+                "lambda:GetFunction",
+                "lambda:CreateFunction",
+                "lambda:DeleteFunction",
+                "s3-object-lambda:ListBucket",
+                "s3-object-lambda:GetObject",
+                "s3-object-lambda:DeleteObject",
+                "s3-object-lambda:PutObject",
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents"
+            ],
+            "Resource": [
+                "*"
+            ]
+        }
+    ]
+}
