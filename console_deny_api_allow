@@ -1,0 +1,24 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "AllowAPICallsFromTrustedIP",
+            "Effect": "Allow",
+            "Action": "*",
+            "Resource": "*",
+            "Condition": {
+                "IpAddress": {
+                    "aws:SourceIp": "203.0.113.25/32"
+                }
+            }
+        },
+        {
+            "Sid": "DenyConsoleLogin",
+            "Effect": "Deny",
+            "Action": [
+                "signin:*"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
