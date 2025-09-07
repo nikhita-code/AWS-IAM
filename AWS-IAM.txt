@@ -1,0 +1,501 @@
+﻿Dev -
+DEV 1:
+Console sign-in URL
+https://652286699990.signin.aws.amazon.com/console
+User name
+dev1
+Console password
+unixserver@6
+
+
+DEV2:
+Console sign-in URL
+https://652286699990.signin.aws.amazon.com/console
+User name
+dev2
+Console password
+unixserver@6
+
+
+"Principal": {
+        "AWS": "arn:aws:iam::123456789012:user/MyUser"
+      }
+arn:aws:iam::652286699990:policy/s3Uploaddelete123
+
+
+  "AWS": "arn:aws:iam::652286699990:user/dev1"
+652286699990
+
+
+"Principal": {
+          "AWS": "arn:aws:iam::652286699990:user/dev1"
+}
+
+
+1. You have an S3 bucket and want a user to only upload files but not delete them
+
+
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "VisualEditor0",
+            "Effect": "Allow",
+            "Action": [
+                "s3:PutObject",
+                "s3:GetObject",
+                "s3:GetBucketLocation",
+                "s3:ListAllMyBuckets",
+                "s3:CreateBucket",
+                "s3:ListBucket"
+            ],
+            "Resource": [
+                "*"
+            ]
+        },
+        {
+            "Sid": "VisualEditor1",
+            "Effect": "Deny",
+            "Action": [
+                "s3:DeleteObject",
+                "s3:DeleteBucket"
+            ],
+            "Resource": [
+                "*"
+            ]
+        }
+    ]
+}
+
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+2) You want to give an EC2 instance access to read data from DynamoDB without storing credentials.
+
+
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "Statement1",
+            "Effect": "Allow",
+            "Action": [
+                "dynamodb:Query",
+                "dynamodb:Scan",
+                "dynamodb:CreateTable",
+                "dynamodb:DeleteTable",
+                "dynamodb:DeleteItem",
+                "dynamodb:GetItem",
+                "dynamodb:BatchGetItem"
+            ],
+            "Resource": [
+                "arn:aws:dynamodb:eu-west-1:652286699990:table/dummydynamodb",
+                "arn:aws:dynamodb:eu-west-1:652286699990:table/dummydynamodb/*"
+            ]
+        }
+    ]
+}
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+Arn:aws:rds:eu-west-1:652286699990:db:database-1-instance-1
+arn:aws:iam::652286699990:user/dev1
+
+
+4) An IAM user’s access key is compromised.
+Create the new access key and do the previous access key status as inactive,
+Log into the cloudtrail logs API call to check for the compromised key , MFA more security 
+ aws iam update-access-key \
+   - - user-name dev1 \
+ – access-key <Compromised_id>
+– status Inactive
+
+
+
+
+5. You want all IAM users to rotate their passwords every 90 days.
+
+
+  
+
+
+
+
+
+  
+
+
+
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "iam:ChangePassword"
+            ],
+            "Resource": [
+                "arn:aws:iam::652286699990:user/dev1"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "iam:GetAccountPasswordPolicy"
+            ],
+            "Resource": "arn:aws:iam::652286699990:user/dev1"
+        }
+    ]
+}
+
+
+
+
+
+
+
+
+
+
+6. You need to give a Lambda function read access to an S3 bucket and write access to CloudWatch Logs.
+
+
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "Statement1",
+            "Effect": "Allow",
+            "Action": [
+                "lambda:GetFunction",
+                "lambda:CreateFunction",
+                "lambda:DeleteFunction",
+                "s3-object-lambda:ListBucket",
+                "s3-object-lambda:GetObject",
+                "s3-object-lambda:DeleteObject",
+                "s3-object-lambda:PutObject",
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents"
+            ],
+            "Resource": [
+                "*"
+            ]
+        }
+    ]
+}
+
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+7. You want to allow cross-account access between two AWS accounts.
+We need sts:AssumeRole in cross-account setups because:
+🔑 Reason
+* IAM roles are the mechanism AWS uses to delegate permissions across accounts.
+
+* When a user (or resource like EC2/Lambda) in Account A needs to access resources in Account B, it cannot directly use its own IAM policies.
+
+* Instead, Account B must trust Account A by creating a role and adding a trust policy that allows sts:AssumeRole.
+
+* Then the user/resource in Account A calls the STS (Security Token Service) AssumeRole API, which issues temporary credentials (access key, secret key, session token).
+
+* With those temporary credentials, the user can now act in Account B with the permissions granted to that role, not their original account permissions
+8. Your company policy says that IAM users must MFA before deleting resources.
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "DenyDeleteWithoutMFA",
+            "Effect": "Deny",
+            "Action": [
+                "ec2:TerminateInstances",
+                "s3:DeleteBucket",
+                "dynamodb:DeleteTable",
+                "iam:DeleteUser",
+                "rds:DeleteDBInstance"
+            ],
+            "Resource": "*",
+            "Condition": {
+                "BoolIfExists": {
+                    "aws:MultiFactorAuthPresent": "false"
+                }
+            }
+        }
+    ]
+}
+
+
+
+
+  
+
+
+
+After MFA : 
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+9. You want to prevent root account usage in daily operations.
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DenyRootUserActions",
+      "Effect": "Deny",
+      "Action": "*",
+      "Resource": "*",
+      "Condition": {
+        "StringLike": {
+          "aws:PrincipalArn": "arn:aws:iam::*:root"
+        }
+      }
+    }
+  ]
+}
+
+
+
+
+10. How would you ensure an IAM role is only assumed by EC2 instances with a specific tag?
+
+
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "Statement1",
+            "Effect": "Allow",
+            "Principal": {
+                "Service": "ec2.amazonaws.com"
+            },
+            "Action": "sts:AssumeRole",
+            "Condition": {
+                "ForAnyValue:StringEquals": {
+                    "aws:ResourceTag/environment": "dev"
+                }
+            }
+        }
+    ]
+}
+  
+
+
+
+
+
+
+
+
+
+10)  Can IAM roles have passwords?
+No ❌ — IAM roles cannot have passwords.
+Here’s the breakdown:
+🔹 IAM Users
+   * Can have passwords → for AWS Management Console login.
+
+   * Can have access keys → for programmatic access (CLI/SDK).
+
+🔹 IAM Roles
+      * Do not have passwords or access keys of their own.
+
+      * Instead, they are assumed using STS (Security Token Service), which gives temporary credentials (AccessKey, SecretKey, SessionToken).
+
+      * Roles are intended for:
+
+         * EC2, Lambda, ECS, etc. to get temporary credentials automatically.
+
+         * Cross-account access.
+
+         * Federated identities (SSO, Cognito, etc.).
+
+________________
+
+
+✅ So if you want console login, use an IAM User (with password).
+✅ If you want services (like EC2/Lambda) or cross-account apps to access AWS, use an IAM Role (no password, only assume).
+
+
+
+
+  
+        "Condition": {
+                                "IpAddress": {
+                                        "aws:SourceIp": "203.0.113.25/32"
+                                }
+                        }
+
+
+12. Can IAM policies deny AWS console login but allow API calls? How?
+
+
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "AllowAPICallsFromTrustedIP",
+            "Effect": "Allow",
+            "Action": "*",
+            "Resource": "*",
+            "Condition": {
+                "IpAddress": {
+                    "aws:SourceIp": "203.0.113.25/32"
+                }
+            }
+        },
+        {
+            "Sid": "DenyConsoleLogin",
+            "Effect": "Deny",
+            "Action": [
+                "signin:*"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+
+
+  
+
+
+
+13. If two IAM policies are attached to the same user and one allows `s3:PutObject` while the other denies it, what happens?
+In IAM, explicit Deny always wins.
+So in your example:
+            * Policy A → Allow → s3:PutObject
+
+            * Policy B → Deny → s3:PutObject
+
+✅ Final result: The user is denied from doing s3:PutObject, because Deny overrides Allow in IAM
+
+
+14) What happens if you delete a managed policy attached to a role?
+If you delete a managed IAM policy that is attached to a role (or user/group):
+               1. The attachment breaks immediately → The role no longer has the permissions granted by that managed policy.
+
+               2. Other policies remain → If the role has additional inline policies or other managed policies, those still apply.
+
+               3. No automatic replacement → Deleting the policy does not remove the role itself, but the role loses whatever permissions that policy granted.
+
+               4. Audit impact → Any running applications (like EC2, Lambda, ECS tasks) using that role may start failing due to missing permissions.
+
+               5. CloudTrail/Access Advisor → Will show reduced or failed API calls after the deletion.
+
+
+16)Can an IAM user assume a role in their own account?
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam::123456789012:user/dev1"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+
+
+17) Can IAM policies be attached directly to AWS resources?
+he Principal must always be an AWS identity (IAM user, role, account root, service).
+
+
+18. Can IAM roles be renamed?
+No — IAM roles cannot be renamed once created.
+If you need a different name, the only option is:
+                  1. Create a new IAM role with the desired name.
+
+                  2. Attach the same policies and trust relationship.
+
+                  3. Update resources (EC2, Lambda, etc.) to use the new role.
+
+                  4. Delete the old role if it’s no longer needed.
+
+⚡ Unlike IAM users (which also cannot be renamed), role names are immutable because they are part of the ARN (arn:aws:iam::<account-id>:role/<role-name>).
+
+
+19. How do you give permission to a user to change their own password but not others?
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowUserToChangeOwnPassword",
+      "Effect": "Allow",
+      "Action": "iam:ChangePassword",
+      "Resource": "arn:aws:iam::*:user/${aws:username}"
+    }
+  ]
+}
+
+
+
+
+Feature
+	AWS Managed Policy
+	Customer Managed Policy
+	Who updates?
+	AWS
+	You
+	How it's applied?
+	Automatically
+	Manually by you
+	Control over updates
+	No direct control
+	Full control
+	Best for
+	Common scenarios; simplifies management
+	Custom requirements, granular control
